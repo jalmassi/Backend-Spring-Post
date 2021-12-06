@@ -1,4 +1,4 @@
-package model;
+package com.justinalmassi.backend.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

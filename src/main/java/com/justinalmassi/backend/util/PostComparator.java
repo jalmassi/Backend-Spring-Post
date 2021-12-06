@@ -1,6 +1,6 @@
-package util;
+package com.justinalmassi.backend.util;
 
-import model.Post;
+import com.justinalmassi.backend.model.Post;
 
 import java.util.Comparator;
 
@@ -20,11 +20,6 @@ public enum PostComparator implements Comparator<Post> {
             return o1.getReads() < o2.getReads() ? 1 : -1;
         }
     },
-//    AUTHORID_SORT {
-//        public int compare(Post o1, Post o2) {
-//            return o1.getAuthorId() < o2.getAuthorId() ? 1 : -1;
-//        }
-//    },
     POPULARITY_SORT {
         public int compare(Post o1, Post o2) {
             return o1.getPopularity() < o2.getPopularity() ? 1 : -1;

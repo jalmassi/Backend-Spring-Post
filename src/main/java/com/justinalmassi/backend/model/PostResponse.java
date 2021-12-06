@@ -1,4 +1,4 @@
-package model;
+package com.justinalmassi.backend.model;
 
 import lombok.Data;
 import org.springframework.http.HttpStatus;

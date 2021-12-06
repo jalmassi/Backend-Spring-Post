@@ -1,4 +1,4 @@
-package util;
+package com.justinalmassi.backend.Validation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -16,7 +16,7 @@ import static java.lang.annotation.ElementType.PARAMETER;
 @Constraint(validatedBy = TagValidator.class)
 public @interface TagValidation {
     //error message
-    public String message() default "Invalid color: must be RED, GREEN or BLUE";
+    public String message() default "Invalid tag";
     //represents group of constraints
     public Class<?>[] groups() default {};
     //represents additional information about annotation

@@ -1,7 +1,7 @@
-package util;
+package com.justinalmassi.backend.util;
 
-import model.Post;
-import model.PostResponse;
+import com.justinalmassi.backend.model.Post;
+import com.justinalmassi.backend.model.PostResponse;
 
 import java.util.*;
 
