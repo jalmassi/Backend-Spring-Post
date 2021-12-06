@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
 
 @Data
 @AllArgsConstructor
@@ -18,6 +17,4 @@ public class Post {
     private Double popularity;
     private Integer reads;
     private String[] tags;
-    private HttpStatus status;
-    private String statusMessage;
 }
