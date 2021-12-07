@@ -12,9 +12,9 @@ public class PostRequest {
 
     @TagValidation
     private List<String> tags;
-    private String sortBy = "ID";
+    private String sortBy;
     @DirectionValidation
-    private String direction = "asc";
+    private String direction;
 //    private List<String> validSortOptions;
 //    private List<String> validDirections;
 //

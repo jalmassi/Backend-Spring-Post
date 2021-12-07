@@ -1,12 +1,10 @@
 package com.justinalmassi.backend.service;
 
+import com.justinalmassi.backend.error_handling.PostNotFoundException;
 import com.justinalmassi.backend.model.Post;
 import com.justinalmassi.backend.model.PostRequest;
 import com.justinalmassi.backend.model.PostResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -37,7 +35,7 @@ public class PostService {
         initialize();
         postResponse.setPosts(getPost(postRequest));
         ;
-        if (postResponse.getPosts().size() == 0) return postResponse;
+        if (postResponse.getPosts().size() == 0) throw new PostNotFoundException();
         ProcessData.removeDuplicatePost(postResponse);
         getUniquePostFromPostResponse();
         ProcessData.sortPostResponse(postResponse, sortBy, direction);

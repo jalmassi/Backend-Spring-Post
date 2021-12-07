@@ -1,5 +1,9 @@
 package com.justinalmassi.backend.controller;
 
+import com.justinalmassi.backend.error_handling.BadRequestException;
+import com.justinalmassi.backend.error_handling.DirectionException;
+import com.justinalmassi.backend.error_handling.PostNotFoundException;
+import com.justinalmassi.backend.error_handling.SortByException;
 import com.justinalmassi.backend.model.Ping;
 import com.justinalmassi.backend.model.PostRequest;
 import com.justinalmassi.backend.model.PostResponse;
@@ -12,6 +16,7 @@ import com.justinalmassi.backend.model.Post;
 import com.justinalmassi.backend.service.PostService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class PostController {
@@ -19,7 +24,7 @@ public class PostController {
     PostService postService = new PostService();
 
     @GetMapping("/api/ping")
-    public ResponseEntity<Ping> getPing(){
+    public ResponseEntity<Ping> getPing() {
         Ping ping = new Ping();
         ping.setSuccess(true);
         ping.setStatus(HttpStatus.OK);
@@ -28,18 +33,20 @@ public class PostController {
     }
 
     @GetMapping("/api/posts")
-    public ResponseEntity<PostResponse> getPosts(@RequestParam List<String> tag, PostRequest postRequest){
-        postRequest.setTags(tag);
-        PostResponse postResponse = new PostResponse();
-//        Post validatePostRequest = postService.validateRequestParameter(postRequest);
+    public ResponseEntity<PostResponse> getPosts(@RequestParam List<String> tag, @RequestParam(required = false) Optional<String> sortBy, @RequestParam(required = false) Optional<String> direction, PostRequest postRequest) {
+        try {
+            postRequest.setSortBy(sortBy.orElseGet(() -> "ID").toUpperCase());
+            postRequest.setDirection(direction.orElseGet(() -> "desc"));
+            if(tag.size() == 0) throw new BadRequestException();
+            if(sortBy != null && postRequest.getSortBy().isEmpty()) throw new SortByException();
+            if(direction != null && postRequest.getDirection().isEmpty()) throw new DirectionException();
+            postRequest.setTags(tag);
+            PostResponse postResponse = new PostResponse();
 
-//        if (validatePostRequest.getStatus() != null || validatePostRequest.getStatusMessage() != null) {
-//            uniquePostResponse.setStatus(validatePostRequest.getStatus());
-//            uniquePostResponse.setMessage(validatePostRequest.getStatusMessage());
-//            return new ResponseEntity<>(uniquePostResponse, HttpStatus.OK);
-//        }
-
-        postResponse = postService.getPostServiceForRequest(postRequest);
-        return new ResponseEntity<>(postResponse, HttpStatus.OK);
+            postResponse = postService.getPostServiceForRequest(postRequest);
+            return new ResponseEntity<>(postResponse, HttpStatus.OK);
+        } catch (PostNotFoundException e) {
+            throw new PostNotFoundException();
+        }
     }
 }

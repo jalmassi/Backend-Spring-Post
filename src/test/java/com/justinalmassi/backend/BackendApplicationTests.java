@@ -2,13 +2,12 @@ package com.justinalmassi.backend;
 
 import com.justinalmassi.backend.controller.PostController;
 import com.justinalmassi.backend.model.PostResponse;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,6 +30,7 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = BackendApplication.class)
@@ -46,12 +47,6 @@ class BackendApplicationTests {
 		protected String mapToJson(Object obj) throws JsonProcessingException {
 			ObjectMapper objectMapper = new ObjectMapper();
 			return objectMapper.writeValueAsString(obj);
-		}
-		protected <T> T mapFromJson(String json, Class<T> clazz)
-				throws JsonParseException, JsonMappingException, IOException {
-
-			ObjectMapper objectMapper = new ObjectMapper();
-			return objectMapper.readValue(json, clazz);
 		}
 
 		@Test
@@ -71,6 +66,13 @@ class BackendApplicationTests {
 					.accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
 			Assert.assertEquals(200, mvcResult.getResponse().getStatus());
 		}
+		@Test
+		public void shouldReturn400WhenSendingBadRequest() throws Exception {
+			String uri = "/api/posts?";
+			MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri)
+					.accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
+			Assert.assertEquals(400, mvcResult.getResponse().getStatus());
+		}
 
 
 		@Test
@@ -80,19 +82,20 @@ class BackendApplicationTests {
 			for(String url : invalidUrlArray){
 
 				MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(url)
-						.accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
+						.accept(MediaType.APPLICATION_JSON_VALUE))
+						.andDo(print()).andReturn();
 
-				PostResponse post = new PostResponse();
-				post.setPosts(null);
-				post.setStatus(HttpStatus.BAD_REQUEST);
-				post.setStatusMessage("Tags parameter is required");
-				String expected = mapToJson(post);
+				PostResponse expectedPost = new PostResponse();
+				expectedPost.setPosts(null);
+				expectedPost.setStatus(HttpStatus.BAD_REQUEST);
+				expectedPost.setStatusMessage("tag is empty: add tag");
 
 				String actual = mvcResult.getResponse().getContentAsString();
-
+				JSONObject actualJson = new JSONObject(actual);
 				System.out.println("url=" + url + " actual=" + actual);
 
-				Assert.assertEquals(expected, actual);
+				Assert.assertEquals(expectedPost.getStatusMessage(), actualJson.get("message"));
+				Assert.assertEquals(expectedPost.getStatus().value(), actualJson.get("status code"));
 			}
 		}
 
@@ -107,14 +110,17 @@ class BackendApplicationTests {
 				MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(url)
 						.accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
 
-				PostResponse post = new PostResponse();
-				post.setPosts(null);
-				post.setStatus(HttpStatus.BAD_REQUEST);
-				post.setStatusMessage("Sort parameter is invalid");
-				String expected = mapToJson(post);
+				PostResponse expectedPost = new PostResponse();
+				expectedPost.setPosts(null);
+				expectedPost.setStatus(HttpStatus.BAD_REQUEST);
+				expectedPost.setStatusMessage("Invalid sort tag");
 
 				String actual = mvcResult.getResponse().getContentAsString();
-				Assert.assertEquals(expected, actual);
+				JSONObject actualJson = new JSONObject(actual);
+				System.out.println("url=" + url + " actual=" + actual);
+
+				Assert.assertEquals(expectedPost.getStatusMessage(), actualJson.get("message"));
+				Assert.assertEquals(expectedPost.getStatus().value(), actualJson.get("status code"));
 			}
 		}
 
@@ -130,7 +136,7 @@ class BackendApplicationTests {
 				PostResponse post = new PostResponse();
 				post.setPosts(null);
 				post.setStatus(HttpStatus.BAD_REQUEST);
-				post.setStatusMessage("Direction parameter is invalid");
+				post.setStatusMessage("Invalid direction");
 				String expected = mapToJson(post);
 
 				String actual = mvcResult.getResponse().getContentAsString();
