@@ -1,6 +1,7 @@
 package com.justinalmassi.backend.model;
 
 import com.justinalmassi.backend.Validation.DirectionValidation;
+import com.justinalmassi.backend.error_handling.SortByException;
 import lombok.Data;
 import com.justinalmassi.backend.util.PostComparator;
 import com.justinalmassi.backend.Validation.TagValidation;
@@ -32,7 +33,13 @@ public class PostRequest {
 //    }
 
     public PostComparator getSortByAsComparator() {
-        return PostComparator.valueOf(sortBy);
+        PostComparator sortByComparator;
+        try{
+        sortByComparator = PostComparator.valueOf(sortBy);}
+        catch(Exception e){
+            throw new SortByException();
+        }
+        return sortByComparator;
     }
 
 }
