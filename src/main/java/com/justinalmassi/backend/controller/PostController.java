@@ -36,14 +36,14 @@ public class PostController {
     public ResponseEntity<PostResponse> getPosts(@RequestParam List<String> tag, @RequestParam(required = false) Optional<String> sortBy, @RequestParam(required = false) Optional<String> direction, PostRequest postRequest) {
         try {
             postRequest.setSortBy(sortBy.orElseGet(() -> "ID").toUpperCase());
-            postRequest.setDirection(direction.orElseGet(() -> "desc"));
+            postRequest.setDirection(direction.orElseGet(() -> "asc"));
             if(tag.size() == 0) throw new BadRequestException();
             if(sortBy != null && postRequest.getSortBy().isEmpty()) throw new SortByException();
             if(direction != null && postRequest.getDirection().isEmpty()) throw new DirectionException();
             postRequest.setTags(tag);
             PostResponse postResponse = new PostResponse();
 
-            postResponse = postService.getPostServiceForRequest(postRequest);
+            postResponse = postService.getPostService(postRequest);
             return new ResponseEntity<>(postResponse, HttpStatus.OK);
         } catch (PostNotFoundException e) {
             throw new PostNotFoundException();

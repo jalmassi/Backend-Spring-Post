@@ -31,13 +31,12 @@ public class PostService {
         direction = "asc";
     }
 
-    public PostResponse getPostServiceForRequest(PostRequest postRequest) {
+    public PostResponse getPostService(PostRequest postRequest) {
         initialize();
         postResponse.setPosts(getPost(postRequest));
         ;
         if (postResponse.getPosts().size() == 0) throw new PostNotFoundException();
         ProcessData.removeDuplicatePost(postResponse);
-        getUniquePostFromPostResponse();
         ProcessData.sortPostResponse(postResponse, sortBy, direction);
         return postResponse;
     }
@@ -73,15 +72,4 @@ public class PostService {
         return tempPostResponse.getPosts();
     }
 
-    /**
-     * Convert Post set into uniquePostResponse list.
-     */
-    private void getUniquePostFromPostResponse() {
-        Iterator postStream = postResponse.getPosts().iterator();
-        List<Post> uniquePostList = new ArrayList<>();
-        while (postStream.hasNext()) {
-            uniquePostList.add((Post) postStream.next());
-        }
-        postResponse.setPosts(uniquePostList);
-    }
 }
